@@ -15,7 +15,7 @@ from llama_index.core.readers.file.base import get_default_fs, is_default_fs
 from llama_index.core.schema import Document
 
 class FileLoaderConfig(BaseModel):
-    data_dir: str = "data"
+    data_dir: str = "data1"
     use_llama_parse: bool = False
 
     @validator("data_dir")
@@ -102,9 +102,10 @@ def get_file_documents(config: FileLoaderConfig):
     reader = SimpleDirectoryReader(
         config.data_dir,
         recursive=True,
-        file_extractor={
-            ".pdf": PyMuPDFReader(),
-        },
+        required_exts=[".doc",".docx"]
+        # file_extractor={
+        #     ".pdf": PyMuPDFReader(),
+        # },
     )
     if config.use_llama_parse:
         parser = llama_parse_parser()

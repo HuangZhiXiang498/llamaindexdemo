@@ -13,6 +13,8 @@ def init_settings():
         init_anthropic()
     elif model_provider == "gemini":
         init_gemini()
+    elif model_provider == "azure_openai":
+        init_azure_openai()
     else:
         raise ValueError(f"Invalid model provider: {model_provider}")
     Settings.chunk_size = int(os.getenv("CHUNK_SIZE", "1024"))
@@ -25,6 +27,32 @@ def init_ollama():
 
     Settings.embed_model = OllamaEmbedding(model_name=os.getenv("EMBEDDING_MODEL"))
     Settings.llm = Ollama(model=os.getenv("MODEL"))
+
+def init_azure_openai():
+    from llama_index.llms.azure_openai import AzureOpenAI
+    from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
+
+    llm = AzureOpenAI(
+        model="gpt-35-turbo-16k",
+        deployment_name="translate-35",
+        api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+        azure_endpoint=os.getenv("AZURE_ENDPOINT"),
+        api_version=os.getenv("AZURE_API_VERSION"),
+    )
+
+    # You need to deploy your own embedding model as well as your own chat completion model
+    embed_model = AzureOpenAIEmbedding(
+        model="text-embedding-ada-002",
+        deployment_name="translate-35",
+        api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+        azure_endpoint=os.getenv("AZURE_ENDPOINT"),
+        api_version=os.getenv("AZURE_API_VERSION"),
+    )
+    print(os.getenv("AZURE_ENDPOINT"))
+
+    Settings.embed_model = embed_model
+    Settings.llm = llm
+
 
 
 def init_openai():
